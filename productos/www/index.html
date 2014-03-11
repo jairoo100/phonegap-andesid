@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="format-detection" content="telephone=no" />
+        <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+        <!meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+    <link rel="stylesheet" type="text/css" href="css/index.css" />
+    <link rel="stylesheet" type="text/css" href="css/jquery.mobile-1.4.1.min.css" />
+    <script type="text/javascript" src="js/jquery-2.1.0.min.js"></script>
+    <script type="text/javascript" src="js/jquery.mobile-1.4.1.min.js"></script>
+
+    <title>Openzix Apps</title>
+</head>
+<body>
+
+    <div id="home" data-role="page">
+
+        <div data-role="header" data-position="fixed">
+            <a href="#usuario" data-role="button" data-icon="user" data-iconpos="notext" class="ui-btn-left">Inicio</a>
+            <img src="img/icon2.png" class="ui-btn-right" />
+            <h1>Produtos</h1>
+        </div><!-- /header -->
+
+        <div role="main" class="ui-content">
+
+            <div id="imgLogo" style="text-align: center">
+                <img width="100%" style="margin:0px " src="img/img.jpg">
+            </div>
+            <div style="">
+                <label for="search"><strong style="color: red">Ingresar Cedula</strong></label>
+                <input type="search" name="cedula" id="search" value="" placeholder="Cedula">
+                <fieldset class="ui-grid-b">
+                    <div class="ui-block-a">
+
+                    </div>
+                    <div class="ui-block-b">
+                        <button id="buscar" class="ui-btn ui-corner-all">Descuentos</button>
+                    </div>
+                    <div class="ui-block-c">
+
+                    </div>
+                </fieldset>
+            </div>
+            <hr style="visibility: hidden" id="barra">
+            <div id="resultado">
+
+            </div>
+        </div><!-- /content -->
+
+        <div data-role="footer" data-position="fixed">
+            <h4>Productos 2014</h4>
+        </div><!-- /footer -->
+
+    </div>
+
+    <div id="usuario" data-role="page">
+        <div data-role="header" data-position="fixed">
+            <a href="#home" data-role="button" data-icon="home" data-iconpos="notext" class="ui-btn-left">Inicio</a>
+            <img src="img/icon.png" class="ui-btn-right" />
+            <h1>Produtos</h1>
+        </div><!-- /header -->
+
+        <div role="main" class="ui-content">
+            <div>
+                <h2 style="color: coral">Nombre:</h2>
+                <p><strong id="nombre">N/A</strong></p>
+            </div>
+            <div>
+                <h2 style="color: coral">Sexo:</h2>
+                <p><strong id="sexo">N/A</strong></p>
+            </div>
+            <div>
+                <h2 style="color: coral">Edad:</h2>
+                <p><strong id="edad">N/A</strong></p>
+            </div>
+        </div><!-- /content -->
+
+        <div data-role="footer" data-position="fixed">
+            <h4>Productos 2014</h4>
+        </div><!-- /footer -->
+
+    </div>
+
+    <script type="text/javascript" src="js/index.js"></script>
+
+    <script type="text/javascript">
+
+        $(document).ready(function() {
+            //navigator.splashscreen.hide();
+            $('#buscar').click(function() {
+
+                $('#imgLogo').hide('slow');
+
+                $.mobile.loading('show', {
+                    text: 'Cargando',
+                    textVisible: true,
+                    theme: 'z',
+                    html: ""
+                });
+
+                $('#resultado').html('');
+                $('#nombre').html('N/A');
+                $('#edad').html('N/A');
+                $('#sexo').html('N/A');
+
+                $.ajax({
+                    type: "POST",
+                    url: "http://spogix.com/producto/producto.php",
+                    data: 'cedula=' + $('#search').val(),
+                    dataType: 'json',
+                    success: function(datos) {
+                        //alert(datos)
+
+                        if (datos.val == 2) {
+                            $.each(datos.productos, function(index, value) {
+
+                                var html = '<div class = "ui-body ui-body-a ui-corner-all" ><div class = "ui-grid-c" >\n\
+                                <div><img class = "ui-block-a" src = "data:image/jpg;base64,{imagen}" ></div>\n\
+                                <div class = "ui-grid-solo" style = "border: 0px solid">\n\
+                                <div class = "tituloProducto"> {nombre_producto} \n\
+                                <div class = "descuento" > {descuento_producto} </div></div >\n\
+                                <div class = "contenidoProducto"> {referencia_producto} </div>\n\
+                                <div class = "presionProducto" > {precio_producto}</div>\n\
+                                <div class = "antesProducto" > antes: {precio_ant} </div></div></div></div><br>';
+
+                                html = html.replace("{imagen}", value.imagen);
+                                html = html.replace("{nombre_producto}", value.nombre);
+                                html = html.replace("{descuento_producto}", value.descuento);
+                                html = html.replace("{referencia_producto}", value.referencia);
+                                html = html.replace("{precio_producto}", value.precio);
+                                html = html.replace("{precio_ant}", value.precio_ant);
+
+                                $('#resultado').append(html);
+                                $.mobile.loading("hide");
+                            });
+
+                            $('#nombre').html(datos.datos['nombre']);
+                            $('#edad').html(datos.datos['edad']);
+                            $('#sexo').html(datos.datos['genero']);
+
+                        } else {
+                            $('#resultado').html('<h2 style="color:red; text-align: center">No Tienes Descuentos Esta Semana</h3>');
+                            $.mobile.loading("hide");
+                        }
+
+
+
+                    },
+                    error: function(error, quepaso, obje) {
+                        alert('No Conexion a Internet');
+                        $.mobile.loading("hide");
+                    }
+                });
+            })
+        });
+    </script>
+</body>
+
+</html>
